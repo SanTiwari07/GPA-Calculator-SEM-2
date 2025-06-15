@@ -35,13 +35,13 @@ Final SGPA (out of 20 and out of 10)
 
 # 📘 Grade Conversion Logic
 Percentage	Grade Point
-91–100	10
-81–90	9
-71–80	8
-61–70	7
-51–60	6
-45–50	5
-40–44	4
+91–100	10,
+81–90	9,
+71–80	8,
+61–70	7,
+51–60	6,
+45–50	5,
+40–44	4 and 
 Below 40	0 (Fail)
 
 
