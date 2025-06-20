@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GPA Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #f0fff0, #d0f0ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      max-width: 800px;
+      width: 100%;
+    }
+    h1, h2, h3 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    form label {
+      display: block;
+      margin: 10px 0 5px;
+      color: #34495e;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #219150;
+    }
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #e8f8f5;
+      border-left: 6px solid #1abc9c;
+      border-radius: 8px;
+      color: #2c3e50;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GPA Calculator</h1>
+    <form id="gpa-form">
+      <h2>Theory Subjects</h2>
+      <div id="subjects"></div>
+
+      <h2>Other Components</h2>
+      <label>Soft Skill TW (out of 25): <input type="number" id="SS_TW"></label>
+      <label>Soft Skill CIE + Attendance (out of 25): <input type="number" id="SS_CIE"></label>
+      <label>IIDTL TW (out of 50): <input type="number" id="IIDTL_TW"></label>
+      <label>NPTEL (out of 25): <input type="number" id="NPTEL"></label>
+      <label>CCA (out of 25): <input type="number" id="CCA"></label>
+
+      <button type="button" onclick="calculateGPA()">Calculate GPA</button>
+    </form>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const subjects = ["SIC", "CST", "CGD", "OOP", "ESE"];
+    let html = "";
+    subjects.forEach((name, i) => {
+      html += `<h3>${name}</h3>`;
+      html += `<label>Midsem (out of 20): <input type='number' id='mid${i}'></label>`;
+      html += `<label>Endsem (out of 70): <input type='number' id='end${i}'></label>`;
+      html += `<label>CIE (out of 15): <input type='number' id='cie${i}'></label>`;
+      html += `<label>Attendance (%): <input type='number' id='att${i}'></label>`;
+      if (i < 4) html += `<label>TW (out of 25): <input type='number' id='tw${i}'></label>`;
+    });
+    document.getElementById("subjects").innerHTML = html;
+
+    function grade(num) {
+      if (num >= 91) return 10;
+      else if (num >= 81) return 9;
+      else if (num >= 71) return 8;
+      else if (num >= 61) return 7;
+      else if (num >= 51) return 6;
+      else if (num >= 45) return 5;
+      else if (num >= 40) return 4;
+      return 0;
+    }
+
+    function attConvert(percent) {
+      if (percent >= 90) return 5;
+      else if (percent >= 85) return 4;
+      else if (percent >= 80) return 3;
+      else if (percent >= 75) return 2;
+      return 0;
+    }
+
+    function calculateGPA() {
+      let totalGrades = [];
+      let twGrades = [];
+      let totalSum = 0;
+
+      for (let i = 0; i < 5; i++) {
+        const mid = parseFloat(document.getElementById(`mid${i}`).value) || 0;
+        let end = parseFloat(document.getElementById(`end${i}`).value) || 0;
+        const cie = parseFloat(document.getElementById(`cie${i}`).value) || 0;
+        const att = attConvert(parseFloat(document.getElementById(`att${i}`).value) || 0);
+        end = Math.round((60 * end) / 70);
+
+        let total = grade(mid + end + cie + att);
+        totalGrades.push(total);
+      }
+
+      for (let i = 0; i < 4; i++) {
+        let tw = parseFloat(document.getElementById(`tw${i}`).value) || 0;
+        tw = grade(tw * 4);
+        twGrades.push(tw);
+      }
+
+      let SS_TW = grade((parseFloat(document.getElementById("SS_TW").value) || 0) * 4);
+      let SS_CIE = grade((parseFloat(document.getElementById("SS_CIE").value) || 0) * 4);
+      let IIDTL_TW = grade((parseFloat(document.getElementById("IIDTL_TW").value) || 0) * 2);
+      let NPTEL = grade((parseFloat(document.getElementById("NPTEL").value) || 0) * 4);
+      let CCA = grade((parseFloat(document.getElementById("CCA").value) || 0) * 4);
+
+      let gpa = (3 * totalGrades[0] + 2 * totalGrades[1] + 2 * totalGrades[2] + 2 * totalGrades[3] + 2 * totalGrades[4]
+               + twGrades.reduce((a,b)=>a+b, 0) + SS_TW + SS_CIE + IIDTL_TW + NPTEL + CCA);
+
+      document.getElementById("result").innerHTML =
+        totalGrades.map((t, i) => `${subjects[i]} Theory Grade: ${t}`).join("<br>") + "<br>" +
+        twGrades.map((t, i) => `${subjects[i]} TW Grade: ${t}`).join("<br>") + `<br>` +
+        `Soft Skill TW Grade: ${SS_TW}<br>` +
+        `Soft Skill Theory Grade: ${SS_CIE}<br>` +
+        `IIDTL Grade: ${IIDTL_TW}<br>` +
+        `NPTEL Grade: ${NPTEL}<br>` +
+        `CCA Grade: ${CCA}<br><br>` +
+        `<strong>Total SCGPA: ${gpa} / 20 = ${(gpa / 20).toFixed(2)}</strong>`;
+    }
+  </script>
+</body>
+</html>
